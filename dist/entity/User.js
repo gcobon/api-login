@@ -11,7 +11,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const class_validator_1 = require("class-validator");
+const bcrypt = require("bcryptjs");
+// TODO: IsEmail
 let User = class User {
+    hashPassword() {
+        const salt = bcrypt.genSaltSync(10);
+        this.password = bcrypt.hashSync(this.password, salt);
+    }
+    checkPassword(password) {
+        return bcrypt.compareSync(password, this.password);
+    }
 };
 __decorate([
     typeorm_1.PrimaryGeneratedColumn(),
@@ -19,18 +29,32 @@ __decorate([
 ], User.prototype, "id", void 0);
 __decorate([
     typeorm_1.Column(),
+    class_validator_1.MinLength(6),
     __metadata("design:type", String)
-], User.prototype, "firstName", void 0);
+], User.prototype, "username", void 0);
 __decorate([
     typeorm_1.Column(),
+    class_validator_1.MinLength(6),
     __metadata("design:type", String)
-], User.prototype, "lastName", void 0);
+], User.prototype, "password", void 0);
 __decorate([
     typeorm_1.Column(),
-    __metadata("design:type", Number)
-], User.prototype, "age", void 0);
+    class_validator_1.IsNotEmpty(),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+__decorate([
+    typeorm_1.Column(),
+    typeorm_1.CreateDateColumn(),
+    __metadata("design:type", Date)
+], User.prototype, "createdAt", void 0);
+__decorate([
+    typeorm_1.Column(),
+    typeorm_1.UpdateDateColumn(),
+    __metadata("design:type", Date)
+], User.prototype, "updatedAt", void 0);
 User = __decorate([
-    typeorm_1.Entity()
+    typeorm_1.Entity(),
+    typeorm_1.Unique(['username'])
 ], User);
 exports.User = User;
 //# sourceMappingURL=User.js.map

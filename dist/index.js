@@ -12,38 +12,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
 const express = require("express");
-const routes_1 = require("./routes");
-const User_1 = require("./entity/User");
-typeorm_1.createConnection().then((connection) => __awaiter(void 0, void 0, void 0, function* () {
+const cors = require("cors");
+const helmet = require("helmet");
+const index_1 = require("./routes/index");
+const PORT = process.env.PORT || 3000;
+typeorm_1.createConnection()
+    .then(() => __awaiter(void 0, void 0, void 0, function* () {
     // create express app
     const app = express();
+    // middlewares
+    app.use(cors());
+    app.use(helmet());
+    app.use(express.json());
     // register express routes from defined application routes
-    routes_1.Routes.forEach(route => {
-        app[route.method](route.route, (req, res, next) => {
-            const result = (new route.controller)[route.action](req, res, next);
-            if (result instanceof Promise) {
-                result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
-            }
-            else if (result !== null && result !== undefined) {
-                res.json(result);
-            }
-        });
+    app.use(index_1.default);
+    app.get('/', (req, res) => {
+        res.json({ message: 'welcome to my api' });
     });
     // setup express app here
     // ...
     // start express server
-    app.listen(3000);
-    // insert new users for test
-    yield connection.manager.save(connection.manager.create(User_1.User, {
-        firstName: "Timber",
-        lastName: "Saw",
-        age: 27
-    }));
-    yield connection.manager.save(connection.manager.create(User_1.User, {
-        firstName: "Phantom",
-        lastName: "Assassin",
-        age: 24
-    }));
-    console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
-})).catch(error => console.log(error));
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}))
+    .catch((error) => console.log(error));
 //# sourceMappingURL=index.js.map

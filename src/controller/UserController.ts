@@ -3,13 +3,22 @@ import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 import { User } from '../entity/User';
 
+const validationOpt = {
+  validationError: { target: false, value: false },
+};
+
 class UserController {
   static getAll = async (req: Request, res: Response) => {
     const userRepository = getRepository(User);
+    let users: User[];
 
-    const users = await userRepository.find({
-      select: ['id', 'username', 'role', 'createdAt', 'updatedAt'],
-    });
+    try {
+      users = await userRepository.find({
+        select: ['id', 'username', 'role', 'createdAt', 'updatedAt'],
+      });
+    } catch (error) {
+      return res.status(500).json('Something goes wrong');
+    }
 
     if (users.length > 0) {
       res.send(users);
@@ -45,7 +54,7 @@ class UserController {
     user.password = password;
     user.role = role;
 
-    const errors = await validate(user);
+    const errors = await validate(user, validationOpt);
 
     if (errors.length > 0) {
       return res.status(400).json(errors);
@@ -81,7 +90,11 @@ class UserController {
     user.username = username;
     user.role = role;
 
-    const errors = await validate(user);
+    // const validationOpt = {
+    //   validationError: { target: false, value: false },
+    // };
+
+    const errors = await validate(user, validationOpt);
 
     if (errors.length) {
       return res.status(400).json(errors);
