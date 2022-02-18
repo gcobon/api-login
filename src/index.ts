@@ -19,7 +19,7 @@ createConnection()
     app.use(express.json());
 
     // register express routes from defined application routes
-    app.use(routes);
+    app.use('/api', routes);
 
     app.get('/', (req: Request, res: Response) => {
       res.json({ message: 'welcome to my api' });
